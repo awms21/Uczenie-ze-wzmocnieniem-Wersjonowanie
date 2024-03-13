@@ -1,0 +1,25 @@
+import numpy as np
+import pyswarms as ps
+from pyswarms.utils.plotters import plot_cost_history
+
+N = 100  # liczba maszyn
+M = 30  # liczba gości
+Tmax = 100  # maksymalna liczba iteracji
+
+class HordaPrzeciwBandytom:
+    def __init__(self, N, M, Tmax, f_prawdziwy, m, s):
+        self.N = N  # liczba maszyn
+        self.M = M  # liczba gości
+        self.Tmax = Tmax  # maksymalna liczba iteracji
+        self.f_prawdziwy = f_prawdziwy  # rozkład prawdopodobieństwa wygranej dla każdej maszyny
+        self.m = m  # średnie empiryczne wyniki 
+        self.s = s  # odchylenia standardowe empirycznych wyników gości
+
+def graj
+
+def wypisz_wyniki
+
+def uruchom_symulacje
+
+horda = HordaPrzeciwBandytom(N, M, Tmax, f_prawdziwy, m, s)
+horda.uruchom_symulacje()
