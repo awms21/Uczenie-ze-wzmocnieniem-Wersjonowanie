@@ -1,0 +1,49 @@
+import numpy as np
+import pyswarms as ps
+from pyswarms.utils.plotters import plot_cost_history
+
+class HordaPrzeciwBandytom:
+    def __init__(self, N, M, Tmax, f_prawdziwy, m, s):
+        self.N = N  # liczba maszyn
+        self.M = M  # liczba gości
+        self.Tmax = Tmax  # maksymalna liczba iteracji
+        self.f_prawdziwy = f_prawdziwy  # rozkład prawdopodobieństwa wygranej dla każdej maszyny
+        self.m = m  # średnie empiryczne wyniki 
+        self.s = s  # odchylenia standardowe empirycznych wyników gości
+
+    def graj(self, x):
+        wygrane = np.zeros(self.N)
+        for i in range(self.N):
+            wygrane[i] = np.random.normal(self.f_prawdziwy[i], 1)
+        return wygrane
+
+    def aktualizuj_wyniki(self, x):
+        for j in range(self.M):
+            for i in range(self.N):
+                self.m[i][j] = (self.m[i][j] * self.s[i][j]**2 + x[j][i]) / (self.s[i][j]**2 + 1)
+                self.s[i][j] = np.sqrt((self.s[i][j]**2) / (self.s[i][j]**2 + 1))
+
+    def funkcja_celu(self, x):
+        self.aktualizuj_wyniki(x)
+        global_best = np.argmax(np.mean(self.m, axis=1)) 
+        individual_best = np.argmax(self.m, axis=0)  
+        return -np.mean(self.m[global_best]) - np.mean(self.m[individual_best, range(self.M)])
+
+    def uruchom_symulacje(self):
+        options = {'c1': 0.5, 'c2': 0.3, 'w':0.9}
+        optimizer = ps.single.GlobalBestPSO(n_particles=self.M, dimensions=self.N, options=options)
+        best_cost, best_pos = optimizer.optimize(self.funkcja_celu, iters=self.Tmax)
+
+        print("Najlepsza uzyskana średnia wygrana:", -best_cost)
+
+        plot_cost_history(optimizer.cost_history)
+
+N = 100  # liczba maszyn
+M = 30  # liczba gości
+Tmax = 1000  # maksymalna liczba iteracji
+f_prawdziwy = np.random.uniform(0, 10, N)  
+m = np.random.uniform(0, 10, (N, M))  
+s = np.random.uniform(0.1, 1, (N, M))  
+
+horda = HordaPrzeciwBandytom(N, M, Tmax, f_prawdziwy, m, s)
+horda.uruchom_symulacje()
